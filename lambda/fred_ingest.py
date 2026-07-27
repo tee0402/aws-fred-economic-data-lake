@@ -24,8 +24,12 @@ RAW_PATH = f"raw/ingestion_date={datetime.datetime.now().strftime('%Y-%m-%d')}/"
 # ── FRED API ──────────────────────────────────────────────────────────────────────
 
 def is_retryable(exception: Exception) -> bool:
-    """Return True only for 500 server errors."""
-    return isinstance(exception, requests.exceptions.HTTPError) and exception.response.status_code == 500
+    """Return True for 500 server errors, timeouts, and connection errors."""
+    if isinstance(exception, requests.exceptions.HTTPError):
+        return exception.response.status_code == 500
+    if isinstance(exception, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
+        return True
+    return False
 
 
 @retry(

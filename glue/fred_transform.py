@@ -41,9 +41,10 @@ dq_results = EvaluateDataQuality.apply(
 dq_results.show(truncate=False)
 
 failed_rules = dq_results.filter(dq_results["Outcome"] == "Failed")
-if failed_rules.count() > 0:
+failed_rules_count = failed_rules.count()
+if failed_rules_count > 0:
     failed_rules.show(truncate=False)
-    raise Exception(f"Data quality check failed: {failed_rules.count()} rule(s) did not pass")
+    raise Exception(f"Data quality check failed: {failed_rules_count} rule(s) did not pass")
 
 bucket_name = urlparse(raw_path).netloc
 processed_path = f"s3://{bucket_name}/processed/economic_indicators/"

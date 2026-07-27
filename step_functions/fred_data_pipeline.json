@@ -1,0 +1,71 @@
+{
+  "Comment": "FRED Data Pipeline",
+  "StartAt": "Invoke Ingestion Lambda",
+  "States": {
+    "Invoke Ingestion Lambda": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:<region>:<account-id>:function:fred-api-ingestion:$LATEST"
+      },
+      "Next": "Start Glue Transform Job",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Notify Failure"
+        }
+      ]
+    },
+    "Start Glue Transform Job": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "fred_transform",
+        "Arguments": {
+          "--raw_path.$": "$.raw_path"
+        }
+      },
+      "Next": "Start Glue Crawler",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Notify Failure"
+        }
+      ]
+    },
+    "Start Glue Crawler": {
+      "Type": "Task",
+      "Parameters": {
+        "Name": "fred_data_lake_crawler"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Notify Failure"
+        }
+      ],
+      "End": true
+    },
+    "Notify Failure": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "Message.$": "$",
+        "TopicArn": "arn:aws:sns:<region>:<account-id>:fred-pipeline-alerts"
+      },
+      "Next": "Pipeline Failed"
+    },
+    "Pipeline Failed": {
+      "Type": "Fail"
+    }
+  },
+  "QueryLanguage": "JSONPath"
+}

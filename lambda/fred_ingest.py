@@ -98,8 +98,9 @@ def lambda_handler(event, context):
             observations = fetch_series(FRED_API_KEY, series_id)
         except Exception as e:
             log.error(f"{series_id}: skipping after all retries failed - {e}")
-        key = f"{RAW_PATH}{series_id}.json"
+            continue
         try:
+            key = f"{RAW_PATH}{series_id}.json"
             upload_to_s3(BUCKET_NAME, key, observations)
         except Exception as e:
             log.error(f"{series_id}: failed to upload to S3 - {e}")

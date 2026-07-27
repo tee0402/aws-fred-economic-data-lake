@@ -12,6 +12,7 @@ raw_path = args["raw_path"]
 sc = SparkContext.getOrCreate()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
+spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
 df = spark.read.json(raw_path)
 

@@ -62,6 +62,7 @@ Failures (Lambda/Glue ETL/Start Crawler)
 ## S3 Raw Data Lake
 
 ![S3 raw](screenshots/s3_raw.png)
+[Sample JSON](sample_data/A191RL1Q225SBEA.json)
 
 ## Glue ETL Job Run
 
@@ -79,6 +80,7 @@ Failures (Lambda/Glue ETL/Start Crawler)
 ## Athena Query
 
 ![Athena query](screenshots/athena_query.png)
+[Sample results](sample_data/athena_results.csv)
 
 ## SNS Failure Email
 

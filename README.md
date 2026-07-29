@@ -82,6 +82,8 @@ Failures (Lambda/Glue ETL/Start Crawler)
 ![Athena query](screenshots/athena_query.png)
 [Sample results](sample_data/athena_results.csv)
 
+[More sample queries](athena/sample_queries.sql)
+
 ## SNS Failure Email
 
 ![SNS failure email](screenshots/sns_failure_email.png)

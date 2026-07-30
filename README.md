@@ -14,14 +14,14 @@ EventBridge (Daily Schedule)
     Lambda (Ingestion)
           │
           ▼
-        S3 (Raw)
+       S3 (Raw)
 raw/ingestion_date=YYYY-MM-DD/
           │
           ▼
-    Glue ETL (PySpark)
-      • Transform
-      • Data Validation
-      • Write Parquet
+  Glue ETL (PySpark)
+   • Transform
+   • Data Validation (Glue Data Quality rules)
+   • Write Parquet
           │
           ▼
     S3 (Processed)

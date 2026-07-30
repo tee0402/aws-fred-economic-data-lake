@@ -85,16 +85,12 @@ def upload_to_s3(key: str, data: dict) -> None:
 def lambda_handler(event, context):
     log.info("Starting FRED ingestion")
 
-    FRED_API_KEY = get_secret("FRED_API_KEY")
-    SERIES_IDS = get_series_ids("config/series.json")
-
     # Validate environment
-    if not FRED_API_KEY:
-        raise ValueError("FRED_API_KEY is not set in Secrets Manager")
-    if not SERIES_IDS:
-        raise ValueError("SERIES_IDS is not set in S3 config")
     if not BUCKET_NAME:
         raise ValueError("BUCKET_NAME is not set in Lambda environment variables")
+
+    FRED_API_KEY = get_secret("FRED_API_KEY")
+    SERIES_IDS = get_series_ids("config/series.json")
 
     # Load new data to S3
     for series_id in SERIES_IDS:

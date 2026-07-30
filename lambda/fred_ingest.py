@@ -74,10 +74,10 @@ def get_series_ids(key: str) -> list:
     return series_ids
 
 
-def upload_to_s3(bucket: str, key: str, data: dict) -> None:
+def upload_to_s3(key: str, data: dict) -> None:
     """Upload a JSON file to S3."""
-    s3.put_object(Bucket=bucket, Key=key, Body=json.dumps(data))
-    log.info(f"Uploaded JSON file to s3://{bucket}/{key}")
+    s3.put_object(Bucket=BUCKET_NAME, Key=key, Body=json.dumps(data))
+    log.info(f"Uploaded JSON file to s3://{BUCKET_NAME}/{key}")
 
 
 # ── Lambda Handler ──────────────────────────────────────────────────────────────────────
@@ -105,7 +105,7 @@ def lambda_handler(event, context):
             continue
         try:
             key = f"{RAW_PATH}{series_id}.json"
-            upload_to_s3(BUCKET_NAME, key, observations)
+            upload_to_s3(key, observations)
         except Exception as e:
             log.error(f"{series_id}: failed to upload to S3 - {e}")
         time.sleep(0.5) # Wait 0.5s for politeness

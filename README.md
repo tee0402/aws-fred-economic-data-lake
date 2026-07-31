@@ -48,6 +48,13 @@ Failures (Lambda/Glue ETL/Start Crawler)
 
 ## Design Decisions
 
+**Truncate-and-reload per series over incremental loading** — Each run re-fetches
+the full history of each series and overwrites its curated partition entirely. Chosen
+over incremental loading because FRED revises historical values after initial
+release, and incremental loading would require tracking per-series watermarks while
+not solving the revision problem. The cost of reloading the full history daily is
+negligible at this data volume (tens of thousands of rows per series at most).
+
 **Per-series failure isolation over all-or-nothing ingestion** — A series failing
 to fetch (after retries on 5xx errors, timeouts, and connection errors) is simply
 skipped and doesn't block the other series from being processed.

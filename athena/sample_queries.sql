@@ -18,13 +18,17 @@ FROM "fred"."economic_indicators"
 GROUP BY series_id
 ORDER BY series_id
 
--- Unemployment rate over time
+-- Unemployment rate over time with recession indicator
 SELECT
-    date,
-    value AS unemployment_rate
-FROM "fred"."economic_indicators"
-WHERE series_id = 'UNRATE'
-ORDER BY date
+    U.date,
+    U.value AS unemployment_rate,
+    CAST(R.value AS BOOLEAN) AS is_recession
+FROM "fred"."economic_indicators" U
+LEFT JOIN "fred"."economic_indicators" R ON
+    U.date = R.date
+AND R.series_id = 'USREC'
+WHERE U.series_id = 'UNRATE'
+ORDER BY U.date
 
 -- Get all observations with no value
 SELECT * FROM "fred"."economic_indicators" WHERE value IS NULL

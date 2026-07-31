@@ -70,13 +70,14 @@ from previous successful runs without replacing them. By using
 `spark.sql.sources.partitionOverwriteMode = dynamic`, only partitions of successfully
 ingested series will be updated.
 
-**Glue Data Quality evaluation embedded in ETL job, not run post-crawler** — Setting
-up Glue Data Quality evaluation as a Step Functions state requires the Glue Crawler
+**Glue Data Quality evaluation embedded in Glue ETL job, not run post-crawler** —
+Setting up Glue Data Quality evaluation as a Step Functions state requires the Glue Crawler
 to be run first to populate the Glue Data Catalog table so it can be referenced in
 Glue Data Quality. However, this means that bad data will already be cataloged and
 queryable in Athena by the time that the evaluation runs, which is not a desirable
-behavior. By moving the evaluation directly into the ETL job, the pipeline can be
-failed if any rule fails, and bad data is blocked from reaching the curated layer.
+behavior. By moving the evaluation directly into the Glue ETL job, the pipeline can be
+failed if any Glue Data Quality rule fails, and bad data is blocked from reaching the
+curated layer.
 
 ## EventBridge Daily Schedule
 

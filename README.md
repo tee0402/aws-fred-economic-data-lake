@@ -29,6 +29,7 @@ processed/economic_indicators/
           │
           ▼
 Glue Crawler (Asynchronous)
+• Only runs when a flag is set manually
           │
           ▼
   Glue Data Catalog
@@ -79,6 +80,12 @@ behavior. By moving the evaluation directly into the Glue ETL job, the pipeline 
 failed if any Glue Data Quality rule fails, and bad data is blocked from reaching the
 curated layer.
 
+**Glue Crawler only runs when a flag is set manually** — The Glue Crawler has no Flex
+execution option and carries a 10-minute minimum billing duration, making it cost roughly
+2x the ETL job itself for a schema that rarely changes. By gating the crawler step behind
+a `runCrawler` flag which is only set to true when the crawler needs to be run (i.e. when
+the series list is updated), costs can be minimized for routine runs.
+
 ## EventBridge Daily Schedule
 
 ![EventBridge daily schedule](screenshots/eventbridge_schedule.png)
@@ -86,6 +93,7 @@ curated layer.
 ## Step Functions Orchestration
 
 ![Step Functions](screenshots/step_functions.png)
+*Crawler step not normally run in daily schedule (see Design Decisions)
 
 ## Lambda Execution
 

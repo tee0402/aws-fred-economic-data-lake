@@ -5,10 +5,14 @@
     "Invoke Ingestion Lambda": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": "$.Payload",
       "Parameters": {
-        "FunctionName": "arn:aws:lambda:<region>:<account-id>:function:fred-api-ingestion:$LATEST"
+        "FunctionName": "arn:aws:lambda:<region>:<account-id>:function:fred-api-ingestion:$LATEST",
+        "Payload.$": "$"
       },
+      "ResultSelector": {
+        "raw_path.$": "$.Payload.raw_path"
+      },
+      "ResultPath": "$.ingestion",
       "Next": "Start Glue Transform Job",
       "Catch": [
         {
@@ -25,10 +29,11 @@
       "Parameters": {
         "JobName": "fred_transform",
         "Arguments": {
-          "--raw_path.$": "$.raw_path"
+          "--raw_path.$": "$.ingestion.raw_path"
         }
       },
-      "Next": "Start Glue Crawler",
+      "ResultPath": "$.transformJob",
+      "Next": "Should Run Crawler",
       "Catch": [
         {
           "ErrorEquals": [
@@ -38,12 +43,33 @@
         }
       ]
     },
+    "Should Run Crawler": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "Start Glue Crawler",
+          "And": [
+            {
+              "Variable": "$.runCrawler",
+              "IsPresent": true
+            },
+            {
+              "Variable": "$.runCrawler",
+              "BooleanEquals": true
+            }
+          ]
+        }
+      ],
+      "Default": "Pipeline Succeeded"
+    },
     "Start Glue Crawler": {
       "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
       "Parameters": {
         "Name": "fred_data_lake_crawler"
       },
-      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "ResultPath": "$.crawler",
+      "Next": "Pipeline Succeeded",
       "Catch": [
         {
           "ErrorEquals": [
@@ -51,8 +77,10 @@
           ],
           "Next": "Notify Failure"
         }
-      ],
-      "End": true
+      ]
+    },
+    "Pipeline Succeeded": {
+      "Type": "Succeed"
     },
     "Notify Failure": {
       "Type": "Task",
